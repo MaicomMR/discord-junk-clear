@@ -24,7 +24,7 @@ Then, run the following commands to install the dependencies and start the bot:
 
 ```js
 npm install
-node index.js
+nodemon
 ```
 
 The bot should now be online and ready to remove messages in your Discord server.
