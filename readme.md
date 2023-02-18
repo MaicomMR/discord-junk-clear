@@ -2,7 +2,9 @@
 This is a simple Discord bot that helps you clear messages from channels. You can use the following commands to remove messages:
 
 `!:remove-all-messages` - Remove all messages in the channel.
+
 `!:remove-all-bot-only` - Remove all messages sent by bots in the channel.
+
 `!:remove-all-calling-bot` - Remove all messages that call the bot, by using a banned prefix list.
 
 The bot has a delay of 10 seconds before deleting messages, which can be changed by modifying the delayTimeBeforeDelete variable.
