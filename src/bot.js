@@ -1,6 +1,10 @@
-require('dotenv').config();
+import { commands } from './commands.js';
+import { config } from 'dotenv';
+import Discord from 'discord.js';
 
-const Discord = require('discord.js');
+config();
+
+
 const client = new Discord.Client({
   intents: [
     Discord.IntentsBitField.Flags.GuildMessages,
@@ -11,7 +15,7 @@ const client = new Discord.Client({
 });
 
 const delayTimeBeforeDelete = 10000; // 10 seconds
-const commandsToDelete = ['+play', '+join', '+skip'];
+const commandsToDelete = commands.prefixBlockList;
 
 client.on('ready', () => {
   console.log(`Logged in as ${client.user.tag}!`);
@@ -21,7 +25,9 @@ client.on('ready', () => {
 // TESTE
 client.on('messageCreate', (message) => {
   if (message.content === "teste") {
-    console.log(message.channelId);
+    if (!checkPermission(message)) {
+      return;
+    }
     message.reply('Não tira meu tempo rapá')
   }
 })
@@ -29,9 +35,12 @@ client.on('messageCreate', (message) => {
 
 // CLEAR ALL MESSAGES
 client.on('messageCreate', (message) => {
-  if (message.content === "!:remove-all-messages") {
-    channelId = message.channelId;
-    const channel = client.channels.cache.get(channelId);
+  if (!checkPermission(message)) {
+    return;
+  }
+  if (message.content === commands.clearAllMessages) {
+  channelId = message.channelId;
+    let channel = client.channels.cache.get(channelId);
 
     channel.messages.fetch().then(messages => {
       messages.forEach(message => {
@@ -48,7 +57,10 @@ client.on('messageCreate', (message) => {
 
 // CLEAR ALL BOT MESSAGES
 client.on('messageCreate', (message) => {
-  if (message.content === "!:remove-all-bot-only") {
+  if (!checkPermission(message)) {
+    return;
+  }
+  if (message.content === commands.clearAllBotMessages) {
     channelId = message.channelId;
     const channel = client.channels.cache.get(channelId);
 
@@ -63,7 +75,10 @@ client.on('messageCreate', (message) => {
 
 // CLEAR ALL MESSAGES WITH BANNED PREFIX
 client.on('messageCreate', (message) => {
-  if (message.content === "!:remove-all-calling-bot") {
+  if (!checkPermission(message)) {
+    return;
+  }
+  if (message.content === commands.clearAllMessagesWithPrefix) {
     channelId = message.channelId;
     const channel = client.channels.cache.get(channelId);
 
@@ -101,13 +116,17 @@ function removeBotMessage(message) {
 // GENERIC FUNCTION TO REMOVE MESSAGES WITH PREFIX ON BLOCK LIST
 function removeMessageWithBannedPrefix(message) {
   let splitedMessage = message.content.split(' ');
-  firstString = splitedMessage[0].toLowerCase();
+  let firstString = splitedMessage[0].toLowerCase();
 
   if (commandsToDelete.includes(firstString)) {
     setTimeout(() => {
       message.delete();
     }, delayTimeBeforeDelete);
   }
+}
+
+function checkPermission(message) {
+    return message.member.roles.cache.some(role => role.name === 'Admin')
 }
 
 client.login(process.env.TOKEN);
